@@ -1,0 +1,7 @@
+{
+    "url": "https://as-rit-api-prod.azurewebsites.net/api/Sincronizador/resultados?id=212",
+    "method": "GET",
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJSb2xJZCI6IjEiLCJFbWFpbCI6InN1cGVyYWRtaW5AcHNyaXRwcm9kLm9ubWljcm9zb2Z0LmNvbSIsIk5vbWJyZXMiOiJTdXBlciIsIkFwZWxsaWRvcyI6IkFkbWluIiwiTm9Eb2N1bWVudG8iOiIxMTExMTExMTEiLCJuYmYiOjE2NDM4OTQ2MjAsImV4cCI6MTcwNjk2NjYyMCwiaWF0IjoxNjQzODk0NjIwfQ.n3kaY2cLeeeUxHu4T8Xmol5nI8RRmoljYtRhujCDG7A"
+    }
+}
