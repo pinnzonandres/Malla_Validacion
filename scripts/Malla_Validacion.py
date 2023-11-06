@@ -62,7 +62,7 @@ class validacion:
             try:
                 cond = pd.read_excel(ruta, sheet_name='Validaciones')
                 val = pd.read_excel(ruta, sheet_name='Valores')
-                val = val.dropna(subset=['Valores','Tipo Validacion'])
+                val = val.dropna(subset=['Valores'])
             except Exception as e:
                 print('Nombre o archivo excel erroneo')
                 print(e)
@@ -87,6 +87,7 @@ class validacion:
         self.get_dataframe()
         self.normalize_data()
         self.get_malla()
+        self.dataframe = mf.expand_cols(self.dataframe, self.malla)
         
         print("INICIO PROCESO DE VALIDACIÓN DE DATOS")
         validacion = mf.malla_validacion(data = self.dataframe, guia_validacion = self.malla)

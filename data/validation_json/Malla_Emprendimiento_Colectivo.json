@@ -2052,7 +2052,7 @@
   "valores": null,
   "iand": false,
   "obligatoria": false,
-  "excluida_PTA": false
+  "excluida_PTA": true
  },
  "producto/servicio": {
   "condicion": {
@@ -2126,14 +2126,8 @@
    ]
   },
   "valores": {
-   "valor": [
-    "Selección",
-    "Lavado",
-    "Empaque o embalaje",
-    "Almacenamiento",
-    "Transformación"
-   ],
-   "Tipo": "str"
+   "valor": "Selección|Lavado|Empaque o embalaje|Almacenamiento|Transformación",
+   "Tipo": "listlist"
   },
   "iand": false,
   "obligatoria": false,

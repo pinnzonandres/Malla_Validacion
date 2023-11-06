@@ -107,7 +107,16 @@ def crear_condicion(diccionario, data, iand = False, general = False):
             
 # Función para retornar verdadero o falso si la validación es de lista
 def todos_en_valores_permitidos(row, lista, col):
-    return all(valor in lista for valor in row[col])
+    try:
+        return all(valor in lista for valor in row[col])
+    except:
+        return False
+
+def validar_listlist(row, lista, col):
+    try:
+        return all(all(valor in lista for valor in list) for list in row[col]) 
+    except:
+        return False
 
 ## Función para crear las condiciones en el caso que se deban validar los valores
 def verificar_valores(diccionario, data, col):
@@ -120,6 +129,8 @@ def verificar_valores(diccionario, data, col):
             condicion = data[col].astype(str).str.match(valores)
         elif tipo == 'list':
             condicion = data.apply(todos_en_valores_permitidos, args = (valores, col), axis = 1)
+        elif tipo == 'listlist':
+            condicion = data.apply(validar_listlist, args = (valores, col), axis = 1)
         else:
             condicion = data[col].isin(valores)
     return condicion
@@ -179,9 +190,13 @@ def malla_validacion(data: pd.DataFrame, guia_validacion : dict) -> pd.DataFrame
     store_file = data.copy()
     
     for col in columnas:
-        condicion = crear_condicion(guia_validacion[col]['condicion'], data, guia_validacion[col]['iand'], guia_validacion[col]['excluida_PTA'])
-        values = verificar_valores(guia_validacion[col]['valores'], data, col)
-        store_file[col] = validar_valor(condicion = condicion, values = values, col = col, data = data, file = store_file)
+        try:
+            condicion = crear_condicion(guia_validacion[col]['condicion'], data, guia_validacion[col]['iand'], guia_validacion[col]['excluida_PTA'])
+            values = verificar_valores(guia_validacion[col]['valores'], data, col)
+            store_file[col] = validar_valor(condicion = condicion, values = values, col = col, data = data, file = store_file)
+        except Exception as e:
+            print("Problema para validar la columna {}".format(col))
+            print(e)
         
     obligatorias = [i for i in guia_validacion.keys() if guia_validacion[i]['obligatoria']== False]
     obligatorias = [i for i in obligatorias if i in store_file.columns]
@@ -215,3 +230,78 @@ def malla_validacion(data: pd.DataFrame, guia_validacion : dict) -> pd.DataFrame
     print("El número total de participantes con valores erroneos es {} que equivale a {} hogares".format(len(novalid),novalid['ID_HOGAR'].nunique()))
     
     return store_file, valid, novalid
+
+
+
+# EXPANDIR COLUMNAS
+def remove_nans(row, col):
+    A = row[col]
+    valor = pd.isna(A).squeeze()
+    forma = len(valor.shape)
+    if forma == 0:
+        if valor == True:
+            return np.nan
+        else:
+            return A
+    elif forma == 1:
+        if all(i for i in valor):
+            return np.nan
+        else:
+            return A
+    else:
+        if all(all(m for m in i) for i in valor):
+            return np.nan
+        else:
+            return A
+        
+def expand_data_frame(col, data):
+    expansion = pd.json_normalize(data[col].explode())
+    relacion_filas = data[col].explode().index
+    
+    if len(list(expansion.columns)) == 1:
+        expansion = expansion.rename(columns={list(expansion.columns)[0]:col})
+        
+    expansion['id'] = relacion_filas
+    
+    
+    is_dict = expansion.transform(lambda x: x.apply(type).eq(list)).any()
+    a_expandir = list(is_dict[is_dict==True].index)
+    
+    columnas = list(expansion.columns)
+    columnas.remove("id")
+    
+    aggregation_dict = {
+    columna: (lambda x: [i for i in x]) if columna in a_expandir else (lambda x: [i for i in x] if not all(pd.isna(i) for i in x) else np.nan)
+    for columna in columnas
+    }
+    
+    result = expansion.groupby('id', as_index=False).agg(aggregation_dict)
+    
+    for columna in a_expandir:
+        result[columna] = result.apply(remove_nans, args=(columna,), axis = 1)
+    
+    result = result.drop(columns='id')
+    return result
+
+def expand_cols(data:pd.DataFrame, diccionario: dict):
+    is_dict = data.transform(lambda x: x.apply(type).eq(list)).any()
+    posible_expandir = list(is_dict[is_dict==True].index)
+    try:
+        Expandir = [i for i in posible_expandir if diccionario[i]['valores'] is None]
+    except Exception as e:
+        print("Error en la malla de validación")
+        print(e)
+    
+    for columna in Expandir:
+        try:
+            result = expand_data_frame(columna, data)
+            if len(result.columns) == 1:
+                data = data.drop(columns = columna)
+            data = pd.concat([data, result], axis = 1)
+        except Exception as e:
+            print("Problemas con la expansión de la columna {}".format(columna))
+            print(e)
+    
+    return data
+    
+
