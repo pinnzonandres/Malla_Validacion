@@ -1636,7 +1636,10 @@
  },
  "tip_elimina_basura": {
   "condicion": null,
-  "valores": null,
+  "valores": {
+   "valor": "1|2|3|4|5|6|7",
+   "Tipo": "list"
+  },
   "iand": false,
   "obligatoria": false,
   "excluida_PTA": true
@@ -2088,7 +2091,10 @@
     "Comunitario/Colectivo"
    ]
   },
-  "valores": null,
+  "valores": {
+   "valor": "Kilos|Toneladas|Litros|Unidades|Cabezas",
+   "Tipo": "list"
+  },
   "iand": false,
   "obligatoria": false,
   "excluida_PTA": true
@@ -2103,17 +2109,8 @@
    ]
   },
   "valores": {
-   "valor": [
-    "En un local, vivienda, finca o terreno propio",
-    "En un local, vivienda, finca o terreno en arriendo o en aparcería",
-    "En una finca o un terreno ajeno con permiso del propietario (usufructo)",
-    "En una finca o un terreno ajeno sin permiso del propietario",
-    "En un quiosco o caseta",
-    "En un vehículo (moto, taxi, carro, bus, lancha, barco, zorra o carreta)",
-    "En un territorio colectivo",
-    "No tienen ningún lugar de acopio"
-   ],
-   "Tipo": "str"
+   "valor": "En un local, vivienda, finca o terreno propio|En un local, vivienda, finca o terreno en arriendo o en aparcería|En una finca o un terreno ajeno con permiso del propietario (usufructo)|En una finca o un terreno ajeno sin permiso del propietario|En un quiosco o caseta|En un vehículo (moto, taxi, carro, bus, lancha, barco, zorra o carreta)|En un territorio colectivo|No tienen ningún lugar de acopio",
+   "Tipo": "list"
   },
   "iand": false,
   "obligatoria": false,
@@ -2152,19 +2149,8 @@
    ]
   },
   "valores": {
-   "valor": [
-    " Menos de $100.000 pesos.",
-    " Entre $100.000 y menos de $200.000 pesos.",
-    " Entre $200.000 y menos de $300.000 pesos.",
-    " Entre $300.000 y menos de $400.000 pesos.",
-    " Entre $400.000 y menos de $500.000 pesos.",
-    " Entre $500.000 y menos de $600.000 pesos.",
-    " Entre $600.000 y menos de $700.000 pesos.",
-    " Entre $700.000 y menos de $800.000 pesos.",
-    " Entre $800.000 y menos de $900.000 pesos.",
-    " Más de $900.000 pesos."
-   ],
-   "Tipo": "str"
+   "valor": " Menos de $100.000 pesos.| Entre $100.000 y menos de $200.000 pesos.| Entre $200.000 y menos de $300.000 pesos.| Entre $300.000 y menos de $400.000 pesos.| Entre $400.000 y menos de $500.000 pesos.| Entre $500.000 y menos de $600.000 pesos.| Entre $600.000 y menos de $700.000 pesos.| Entre $700.000 y menos de $800.000 pesos.| Entre $800.000 y menos de $900.000 pesos.| Más de $900.000 pesos.",
+   "Tipo": "list"
   },
   "iand": false,
   "obligatoria": false,
@@ -2221,7 +2207,10 @@
     "Comunitario/Colectivo"
    ]
   },
-  "valores": null,
+  "valores": {
+   "valor": "En su vivienda|En un local o lote de su vivienda|En un local, vivienda, finca o terreno propio, diferente a su vivienda de habitación|En un local, vivienda, finca o terreno en arriendo o en aparcería|En una finca o un terreno ajeno con permiso del propietario (usufructo)|En una finca o un terreno ajeno sin permiso del propietario|En la calle como ambulante o como estacionario|En un quiosco o caseta|Puerta a puerta|En un vehículo (moto, taxi, carro, bus, lancha, barco, zorra o carreta)|En un territorio colectivo",
+   "Tipo": "list"
+  },
   "iand": false,
   "obligatoria": false,
   "excluida_PTA": true
@@ -2256,7 +2245,10 @@
     "Comunitario/Colectivo"
    ]
   },
-  "valores": null,
+  "valores": {
+   "valor": "Energía eléctrica|Alcantarillado|Gas natural|Recolección de basuras|Acueducto|Telefonía o Internet",
+   "Tipo": "list"
+  },
   "iand": false,
   "obligatoria": false,
   "excluida_PTA": true
@@ -2563,7 +2555,10 @@
     "Comunitario/Colectivo"
    ]
   },
-  "valores": null,
+  "valores": {
+   "valor": "La vereda - Corregimiento|Municipio|Departamento|Mercado Nacional|Mercado Internacional|Autoconsumo",
+   "Tipo": "list"
+  },
   "iand": false,
   "obligatoria": false,
   "excluida_PTA": true
