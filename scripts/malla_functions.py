@@ -198,7 +198,6 @@ def malla_validacion(data: pd.DataFrame, guia_validacion : dict) -> pd.DataFrame
     
     store_file['Validacion'] = store_file[obligatorias].sum(axis = 1)
     
-    obligatorias.append('Validacion')
     store_file['Errores'] = store_file.apply(concatenate_Errores, args=(obligatorias,), axis=1)
     
     resultados = store_file.groupby(by=['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE'], as_index=False).agg({'Validacion':'sum'})

@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     try:
         args = parser.parse_args()
-        datos = validacion(nombre_api= args.nombre_api, json_malla= args.json_malla, nombre_malla=args.json_malla)
+        datos = validacion(nombre_api= args.nombre_api, json_malla = args.json_malla, nombre_malla=args.json_malla)
     except Exception as e:
         print('Añade los argumentos necesarios para correr la función')
         print(e)

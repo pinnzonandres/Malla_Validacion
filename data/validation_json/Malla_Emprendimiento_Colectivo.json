@@ -670,8 +670,8 @@
    ]
   },
   "valores": null,
-  "iand": true,
-  "obligatoria": false,
+  "iand": false,
+  "obligatoria": true,
   "excluida_PTA": true
  },
  "representante": {
