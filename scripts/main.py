@@ -22,3 +22,9 @@ if __name__ == "__main__":
     except Exception as e:
         print('Añade los argumentos necesarios para correr la función')
         print(e)
+        
+    test, validas, novalidas = datos.validar_datos()
+    
+    test.to_excel('..\\results\\test.xlsx', index = False)
+    validas.to_excel('..\\results\\validas.xlsx', index = False)
+    novalidas.to_excel('..\\results\\novalidas.xlsx', index = False)
