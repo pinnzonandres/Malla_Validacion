@@ -1637,7 +1637,15 @@
  "tip_elimina_basura": {
   "condicion": null,
   "valores": {
-   "valor": "1|2|3|4|5|6|7",
+   "valor": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+   ],
    "Tipo": "list"
   },
   "iand": false,
@@ -2033,7 +2041,29 @@
    ]
   },
   "valores": {
-   "valor": "Agricultura, ganadería, caza, silvicultura y pesca|Explotación de minas y canteras|Industrias manufactureras|Suministro de electricidad, gas, vapor, y aire acondicionado|Distribución de agua; evacuación y tratamiento de aguas residuales, gestión de desechos y actividades de saneamiento ambiental|Construcción|Comercio al por mayor y al por menor; reparación de vehículos automotores y motocicletas|Transporte y almacenamiento|Alojamiento y servicios de comida|Información y comunicaciones|Actividades financieras y de seguros|Actividades inmobiliarias|Actividades profesionales, científicas y técnicas|Actividades de servicios administrativos y de poyo|Administración pública y defensa; planes de seguridad social de afiliación obligatoria|Educación|Actividades de atención de la salud humana y de asistencia social|Actividades artísticas, de entretenimiento y recreación|Otras actividades de servicios|Actividades de los hogares en calidad de empleadores; actividades no diferenciadas de los hogares individuales como productores de bienes y servicios para uso propio|Actividades de organizaciones y entidades extraterritoriales\\\"",
+   "valor": [
+    "Agricultura, ganadería, caza, silvicultura y pesca",
+    "Explotación de minas y canteras",
+    "Industrias manufactureras",
+    "Suministro de electricidad, gas, vapor, y aire acondicionado",
+    "Distribución de agua; evacuación y tratamiento de aguas residuales, gestión de desechos y actividades de saneamiento ambiental",
+    "Construcción",
+    "Comercio al por mayor y al por menor; reparación de vehículos automotores y motocicletas",
+    "Transporte y almacenamiento",
+    "Alojamiento y servicios de comida",
+    "Información y comunicaciones",
+    "Actividades financieras y de seguros",
+    "Actividades inmobiliarias",
+    "Actividades profesionales, científicas y técnicas",
+    "Actividades de servicios administrativos y de poyo",
+    "Administración pública y defensa; planes de seguridad social de afiliación obligatoria",
+    "Educación",
+    "Actividades de atención de la salud humana y de asistencia social",
+    "Actividades artísticas, de entretenimiento y recreación",
+    "Otras actividades de servicios",
+    "Actividades de los hogares en calidad de empleadores; actividades no diferenciadas de los hogares individuales como productores de bienes y servicios para uso propio",
+    "Actividades de organizaciones y entidades extraterritoriales\\\""
+   ],
    "Tipo": "list"
   },
   "iand": false,
@@ -2092,7 +2122,13 @@
    ]
   },
   "valores": {
-   "valor": "Kilos|Toneladas|Litros|Unidades|Cabezas",
+   "valor": [
+    "Kilos",
+    "Toneladas",
+    "Litros",
+    "Unidades",
+    "Cabezas"
+   ],
    "Tipo": "list"
   },
   "iand": false,
@@ -2109,7 +2145,16 @@
    ]
   },
   "valores": {
-   "valor": "En un local, vivienda, finca o terreno propio|En un local, vivienda, finca o terreno en arriendo o en aparcería|En una finca o un terreno ajeno con permiso del propietario (usufructo)|En una finca o un terreno ajeno sin permiso del propietario|En un quiosco o caseta|En un vehículo (moto, taxi, carro, bus, lancha, barco, zorra o carreta)|En un territorio colectivo|No tienen ningún lugar de acopio",
+   "valor": [
+    "En un local, vivienda, finca o terreno propio",
+    "En un local, vivienda, finca o terreno en arriendo o en aparcería",
+    "En una finca o un terreno ajeno con permiso del propietario (usufructo)",
+    "En una finca o un terreno ajeno sin permiso del propietario",
+    "En un quiosco o caseta",
+    "En un vehículo (moto, taxi, carro, bus, lancha, barco, zorra o carreta)",
+    "En un territorio colectivo",
+    "No tienen ningún lugar de acopio"
+   ],
    "Tipo": "list"
   },
   "iand": false,
@@ -2126,7 +2171,13 @@
    ]
   },
   "valores": {
-   "valor": "Selección|Lavado|Empaque o embalaje|Almacenamiento|Transformación",
+   "valor": [
+    "Selección",
+    "Lavado",
+    "Empaque o embalaje",
+    "Almacenamiento",
+    "Transformación"
+   ],
    "Tipo": "listlist"
   },
   "iand": false,
@@ -2143,7 +2194,18 @@
    ]
   },
   "valores": {
-   "valor": " Menos de $100.000 pesos.| Entre $100.000 y menos de $200.000 pesos.| Entre $200.000 y menos de $300.000 pesos.| Entre $300.000 y menos de $400.000 pesos.| Entre $400.000 y menos de $500.000 pesos.| Entre $500.000 y menos de $600.000 pesos.| Entre $600.000 y menos de $700.000 pesos.| Entre $700.000 y menos de $800.000 pesos.| Entre $800.000 y menos de $900.000 pesos.| Más de $900.000 pesos.",
+   "valor": [
+    " Menos de $100.000 pesos.",
+    " Entre $100.000 y menos de $200.000 pesos.",
+    " Entre $200.000 y menos de $300.000 pesos.",
+    " Entre $300.000 y menos de $400.000 pesos.",
+    " Entre $400.000 y menos de $500.000 pesos.",
+    " Entre $500.000 y menos de $600.000 pesos.",
+    " Entre $600.000 y menos de $700.000 pesos.",
+    " Entre $700.000 y menos de $800.000 pesos.",
+    " Entre $800.000 y menos de $900.000 pesos.",
+    " Más de $900.000 pesos."
+   ],
    "Tipo": "list"
   },
   "iand": false,
@@ -2202,7 +2264,19 @@
    ]
   },
   "valores": {
-   "valor": "En su vivienda|En un local o lote de su vivienda|En un local, vivienda, finca o terreno propio, diferente a su vivienda de habitación|En un local, vivienda, finca o terreno en arriendo o en aparcería|En una finca o un terreno ajeno con permiso del propietario (usufructo)|En una finca o un terreno ajeno sin permiso del propietario|En la calle como ambulante o como estacionario|En un quiosco o caseta|Puerta a puerta|En un vehículo (moto, taxi, carro, bus, lancha, barco, zorra o carreta)|En un territorio colectivo",
+   "valor": [
+    "En su vivienda",
+    "En un local o lote de su vivienda",
+    "En un local, vivienda, finca o terreno propio, diferente a su vivienda de habitación",
+    "En un local, vivienda, finca o terreno en arriendo o en aparcería",
+    "En una finca o un terreno ajeno con permiso del propietario (usufructo)",
+    "En una finca o un terreno ajeno sin permiso del propietario",
+    "En la calle como ambulante o como estacionario",
+    "En un quiosco o caseta",
+    "Puerta a puerta",
+    "En un vehículo (moto, taxi, carro, bus, lancha, barco, zorra o carreta)",
+    "En un territorio colectivo"
+   ],
    "Tipo": "list"
   },
   "iand": false,
@@ -2240,7 +2314,14 @@
    ]
   },
   "valores": {
-   "valor": "Energía eléctrica|Alcantarillado|Gas natural|Recolección de basuras|Acueducto|Telefonía o Internet",
+   "valor": [
+    "Energía eléctrica",
+    "Alcantarillado",
+    "Gas natural",
+    "Recolección de basuras",
+    "Acueducto",
+    "Telefonía o Internet"
+   ],
    "Tipo": "list"
   },
   "iand": false,
@@ -2550,7 +2631,14 @@
    ]
   },
   "valores": {
-   "valor": "La vereda - Corregimiento|Municipio|Departamento|Mercado Nacional|Mercado Internacional|Autoconsumo",
+   "valor": [
+    "La vereda - Corregimiento",
+    "Municipio",
+    "Departamento",
+    "Mercado Nacional",
+    "Mercado Internacional",
+    "Autoconsumo"
+   ],
    "Tipo": "list"
   },
   "iand": false,
