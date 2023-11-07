@@ -7,7 +7,7 @@ import malla_functions as mf
 
 class validacion:
     def __init__(self, nombre_api:str, json_malla: bool, nombre_malla : str, ruta:str):
-        self.config = "{}\\config\\{}.json".format(ruta, nombre_api) 
+        self.config = "{}/config/{}.json".format(ruta, nombre_api) 
         self.bool_malla = json_malla
         self.ruta = ruta
         self.nombre_malla = nombre_malla
@@ -54,12 +54,12 @@ class validacion:
     
     def get_malla(self):
         if self.bool_malla:
-             ruta = '{}\\data\\validation_json\\{}.json'.format(self.ruta, self.nombre_malla)
+             ruta = '{}/data/validation_json/{}.json'.format(self.ruta, self.nombre_malla)
              with open(ruta, encoding='utf-8') as file:
                  self.malla = json.load(file)
         else:
-            ruta =  '{}\\data\\validation_excel\\{}.xlsx'.format(self.ruta, self.nombre_malla)
-            ruta_export = '{}\\data\\validation_json\\{}.json'.format(self.ruta, self.nombre_malla)
+            ruta =  '{}/data/validation_excel/{}.xlsx'.format(self.ruta, self.nombre_malla)
+            ruta_export = '{}/data/validation_json/{}.json'.format(self.ruta, self.nombre_malla)
             try:
                 cond = pd.read_excel(ruta, sheet_name='Validaciones')
                 val = pd.read_excel(ruta, sheet_name='Valores')
