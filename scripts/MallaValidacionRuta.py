@@ -1,12 +1,51 @@
+"""Malla Validacion Ruta
+Este Script es un módulo donde define la clase encargada de utilizar las funciones definidas y validar la información
+"""
+# Autor: Wilson Andrés Pinzón Cortés
+# Correo electrónico: wilson.pinzon@prosperidadsocial.gov.co - pinnzonandres@gmail.com
+# Fecha de creación: 2023-11-07
+# Última modificación: 2023-11-07
+# Versión: 1.0
+# Este código está bajo la licencia MIT.
+# Copyright (c) 2023 Wilson Andrés Pinzón Cortés
+
+
+# Se importan las librerias necesarias
 import pandas as pd
 import numpy as np
 import json
 import requests
+
+# Se importa el script MallaFunctions como un módulo para poder acceder a sus funciones
 import malla_functions as mf
 
 
+# Definición de la clase validacion
 class validacion:
+    """validación
+    Clase Validación
+    Esta clase tiene como objetivo descargar y validar los datos a partir de la malla de validación entregada
+    
+    Atributos: 
+        config (str): Ruta del archivo json con la configuración del API al acceso de datos
+        bool_malla (bool): Booleano que identifica si la malla está en formato JSON o en formato Excel
+        ruta (str): Ruta a la carpeta del proyecto o al repositorio
+        nombre_malla (str): Nombre del archivo que va a tomar la clase como Malla, ya sea en formato JSON o formato Excel
+        malla (dict): Variable que contiene la malla de validación
+        token (dict): Variable que genera el token de acceso a los datos a partir de la ruta config
+        dataframe (pd.DataFrame): Variable que almacena los datos adquiridos desde el API
+        validación [pd.DataFrame, pd.DataFrame, pd.DataFrame]: Variable que contiene los resultados de la validación
+    """
     def __init__(self, nombre_api:str, json_malla: bool, nombre_malla : str, ruta:str):
+        """
+        Inicialización de la instancia validación
+        
+        Args:
+            nombre_api (str) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT
+            json_malla (bool) : Booleano que le indica a la clase si la malla de validación ya se encuentra en formato JSON o se debe crear a partir del archivo Excel
+            nombre_malla (str) : Nombre que identifica a la malla de validación, ya sea de tipo JSON o de tipo Excel (Ambos archivos deben tener el mismo nombre)
+            ruta (str) : Cadena de texto que ubica la ruta a la carpeta del proyecto o al repositorio
+        """
         self.config = "{}/config/{}.json".format(ruta, nombre_api) 
         self.bool_malla = json_malla
         self.ruta = ruta
@@ -16,6 +55,7 @@ class validacion:
         self.dataframe = pd.DataFrame
         self.validacion = pd.DataFrame
         
+    # Método que lee el archivo JSON con la configuracion
     def get_token(self):
         try: 
             with open(self.config) as file:
@@ -23,9 +63,12 @@ class validacion:
         except Exception as e:
             print(e)  
     
+    # Método que accede al API para poder leer el dataframe
     def get_dataframe(self):
+        # Accede al archivo Config
         self.get_token() 
         
+        # Se realiza la conexión con el API
         try: 
             response = requests.get(self.token["url"],
                                     headers = self.token["headers"])
@@ -33,6 +76,7 @@ class validacion:
             print("Conexión Fallida")
             print(e)
         
+        # Almacena en un dataframe de Pandas el resultado del acceso
         try:
             self.dataframe = pd.json_normalize(response.json())
             print("Dataframe Cargado desde el API")
@@ -40,30 +84,42 @@ class validacion:
             print('No se cargo correctamente como dataframe la información del API')
             print(e)
             
+    # Método para normalizar el dataframe y expandir las respuestas de Integrantes
     def normalize_data(self):
         try:
+            # Expande las respuestas de cada encuesta
             self.dataframe =  self.dataframe.explode('respuestas.integrante').reset_index(drop=True)
+            
+            # Expande las respuestas de los integrantes
             df_resp_integrante = pd.json_normalize(self.dataframe['respuestas.integrante'])
             df_resp_integrante = df_resp_integrante.rename(columns={'identificacion':'identificacion_integrante'})
+            
+            # Concatena las respuestas de los integrantes
             self.dataframe = pd.concat([self.dataframe, df_resp_integrante], axis=1)
-            self.dataframe = self.dataframe.rename(columns=lambda x: x.replace('respuestas.', ''))
+            
+            # Elimina de los nombres de la expansión el prefijo "respuestas."
+            self.dataframe = self.dataframe.rename(columns = lambda x: x.replace('respuestas.', ''))
             
         except Exception as e:
             print("Normalización del Dataframe Cancelado")
             print(e)
     
+    # Método para extraer la malla de validación
     def get_malla(self):
+        
+        # Si la malla ya está en formato JSON lee este archivo
         if self.bool_malla:
              ruta = '{}/data/validation_json/{}.json'.format(self.ruta, self.nombre_malla)
              with open(ruta, encoding='utf-8') as file:
                  self.malla = json.load(file)
+        # Si la malla no está en formato json, lee el archivo excel y exporta su resultado como un JSON
         else:
             ruta =  '{}/data/validation_excel/{}.xlsx'.format(self.ruta, self.nombre_malla)
             ruta_export = '{}/data/validation_json/{}.json'.format(self.ruta, self.nombre_malla)
             try:
                 cond = pd.read_excel(ruta, sheet_name='Validaciones')
                 val = pd.read_excel(ruta, sheet_name='Valores')
-                val = val.dropna(subset=['Valores'])
+                val = val.dropna(subset=['valores'])
             except Exception as e:
                 print('Nombre o archivo excel erroneo')
                 print(e)
@@ -82,14 +138,21 @@ class validacion:
                 print(e)
                 
                 
+    # Método que valida los datos
     def validar_datos(self):
-        
-        self.get_token()
+        # Obtiene el dataframe del API
         self.get_dataframe()
+        
+        # Normaliza la información del dataframe
         self.normalize_data()
+        
+        # Obtiene la malla de validación
         self.get_malla()
+        
+        # Expande las posibles columnas adicionales que se deben expandir
         self.dataframe = mf.expand_cols(self.dataframe, self.malla)
         
+        # Se inicia el proceso de validación
         print("INICIO PROCESO DE VALIDACIÓN DE DATOS")
         validacion = mf.malla_validacion(data = self.dataframe, guia_validacion = self.malla)
         return validacion

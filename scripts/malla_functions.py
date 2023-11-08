@@ -30,8 +30,8 @@ def get_list_condiciones(row:pd.Series):
     '''
     
     # Definimos cómo variables los valores que vamos a verificar
-    A = str(row['Condicion'])
-    B = row['Tipo Validacion']
+    A = str(row['condicion'])
+    B = row['tipo_validacion']
     
     # Si no hay valores por verificar, devuelve un valor Nulo
     if A =='nan':
@@ -59,8 +59,8 @@ def get_list_valores(row: pd.Series):
     '''
     
     # Definimos cómo variables los valores que vamos a verificar
-    A = str(row['Valores'])
-    B = row['Tipo Validacion']
+    A = str(row['valores'])
+    B = row['tipo_valor']
     
     # Si no hay valores por verificar, devuelve un valor Nulo
     if A =='nan':
@@ -96,14 +96,14 @@ def create_malla_dict(condiciones: pd.DataFrame, valores: pd.DataFrame)-> Dict[s
     malla = dict()
     
     # Se aplica la función get_list_condiciones para tener las condiciones corregidas
-    condiciones['Condicion'] = condiciones.apply(get_list_condiciones, axis = 1)
+    condiciones['condicion'] = condiciones.apply(get_list_condiciones, axis = 1)
     
     # Se aplica la función get_list_valores para tener los valores corregidas
-    valores['Valores'] = valores.apply(get_list_valores, axis = 1)
+    valores['valores'] = valores.apply(get_list_valores, axis = 1)
     
     # Se realiza un merge de los dos dataframes para poder iterar sobre un único dataframe
     try:
-        result = condiciones.merge(valores, on = 'Variable', how = 'left')
+        result = condiciones.merge(valores, on = 'variable', how = 'left')
     except Exception as e:
         print('Problemas con el archivo Excel de Malla de Validación')
         print(e)
@@ -112,14 +112,14 @@ def create_malla_dict(condiciones: pd.DataFrame, valores: pd.DataFrame)-> Dict[s
     for index, row in result.iterrows():
         
         # Se guardan como variables cada valor de las variables para un acceso más sencillo
-        variable = row['Variable']
-        dependiente = row['Dependiente']
-        condicion = row['Condicion']
-        excluye = row['Excluye Participar']
-        obligatoria = row['Obligatorio']
+        variable = row['variable']
+        dependiente = row['dependiente']
+        condicion = row['condicion']
+        excluye = row['excluye_pta']
+        opcional = row['variable_opcional']
         iand = row['iand']
-        valor = row['Valores']
-        condicion_valor = row['Tipo Validacion_y']
+        valor = row['valores']
+        condicion_valor = row['tipo_valor']
         
         """Creación del diccionario Malla de Validación
     
@@ -132,7 +132,7 @@ def create_malla_dict(condiciones: pd.DataFrame, valores: pd.DataFrame)-> Dict[s
         almacena los valores que puede tomar y el tipo de validación que se va a realizar (int, str, regex, list, listlist)
         - iand: Se refiere a la pregunta de si las multiples condiciones a validar son de tipo or o de tipo and, si está vacío significa que es de tipo or por lo que
         devuelve Falso, caso contrario devuelve True.
-        - obligatoria: Se refiere al caso de si la pregunta es obligatoria, si no es obligatoria devuelve True, caso contrario devuelve False
+        - opcional: Se refiere al caso de si la pregunta es opcional, si no es opcional devuelve True, caso contrario devuelve False
         - Excluida_PTA: Se refiere a la pregunta (La variable se excluye de las condiciones, DESEAPARTICIPAR, DISPONETIERRA, DISPONEAGUA), si se excluye devuelve True, 
         caso contrario devuelve False
         """
@@ -146,7 +146,7 @@ def create_malla_dict(condiciones: pd.DataFrame, valores: pd.DataFrame)-> Dict[s
                 'condicion': None if pd.isna(dependiente) else {dependiente : condicion},
                 'valores': None if pd.isna(condicion_valor) else {'valor':valor, 'Tipo': condicion_valor},
                 'iand': False if pd.isna(iand) else True,
-                'obligatoria': False if pd.isna(obligatoria) else True,
+                'opcional': False if pd.isna(opcional) else True,
                 'excluida_PTA': False if pd.isna(excluye) else True
                 }
             
@@ -154,7 +154,7 @@ def create_malla_dict(condiciones: pd.DataFrame, valores: pd.DataFrame)-> Dict[s
 
 
 ## Crear las condiciones para cada variable o pregunta
-def crear_condicion(diccionario: Optional[Dict], data: pd.DataFrame, iand: bool = False, general: bool = True) -> Optional[pd.Series]:
+def crear_condicion(diccionario: Optional[Dict], data: pd.DataFrame, iand: bool = False,  excluye_pta: bool = False) -> Optional[pd.Series]:
     '''
     Crea las condiciones para cada variable o pregunta según un diccionario y los datos proporcionados.
 
@@ -162,7 +162,7 @@ def crear_condicion(diccionario: Optional[Dict], data: pd.DataFrame, iand: bool 
         diccionario (Dict): Un diccionario que especifica las condiciones para cada variable.
         data (pd.DataFrame): El DataFrame de datos que se utilizará para verificar las condiciones.
         iand (bool): Indica si se deben combinar las condiciones con una operación AND (True) o OR (False). Por defecto, es False.
-        general (bool): Indica si se debe aplicar una condición general basada en ciertas columnas. Por defecto, es False.
+        excluye_pta (bool): Indica si se debe excluir de la validación general (Participar, Tierra y Agua). Por defecto, es False.
 
     Returns:
         Optional[pd.Series]: Una Serie booleana que representa las condiciones resultantes. Si el diccionario es None y general es False, se devuelve None.
@@ -187,7 +187,7 @@ def crear_condicion(diccionario: Optional[Dict], data: pd.DataFrame, iand: bool 
     # Se crea la condición
     # Si no hay condicion que validar pero hay condición general devuelva la condición general
     if diccionario is None:
-        if general == False:
+        if excluye_pta == False:
             return condicion_general
         # Si no hay condición ni requiere condición general devuelve None
         else:
@@ -212,7 +212,7 @@ def crear_condicion(diccionario: Optional[Dict], data: pd.DataFrame, iand: bool 
                     condicion_total = condicion_total & condicion_col
                 else:
                     condicion_total = condicion_total | condicion_col
-            if general == False:
+            if excluye_pta == False:
                 return condicion_total & condicion_general
             else:
                 return condicion_total
@@ -416,7 +416,7 @@ def malla_validacion(data: pd.DataFrame, guia_validacion: Dict) -> pd.DataFrame:
             print(e)
         
     # Se identifican las variables obligatorias
-    obligatorias = [i for i in guia_validacion.keys() if guia_validacion[i]['obligatoria']== False]
+    obligatorias = [i for i in guia_validacion.keys() if guia_validacion[i]['opcional']== False]
     obligatorias = [i for i in obligatorias if i in store_file.columns]
     
     # Se añade la validación de número de documento duplicado
