@@ -18,23 +18,18 @@ import requests
 
 # Se importa el script MallaFunctions como un módulo para poder acceder a sus funciones
 import malla_functions as mf
+from typing import Union
 
 
 # Definición de la clase validacion
 class validacion:
-    """validación
-    Clase Validación
-    Esta clase tiene como objetivo descargar y validar los datos a partir de la malla de validación entregada
+    """Esta clase tiene como objetivo descargar y validar los datos a partir de la malla de validación entregada
     
     Atributos: 
-        config (str): Ruta del archivo json con la configuración del API al acceso de datos
-        bool_malla (bool): Booleano que identifica si la malla está en formato JSON o en formato Excel
-        ruta (str): Ruta a la carpeta del proyecto o al repositorio
-        nombre_malla (str): Nombre del archivo que va a tomar la clase como Malla, ya sea en formato JSON o formato Excel
-        malla (dict): Variable que contiene la malla de validación
-        token (dict): Variable que genera el token de acceso a los datos a partir de la ruta config
-        dataframe (pd.DataFrame): Variable que almacena los datos adquiridos desde el API
-        validación [pd.DataFrame, pd.DataFrame, pd.DataFrame]: Variable que contiene los resultados de la validación
+            - nombre_api (str) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT
+            - json_malla (bool) : Booleano que le indica a la clase si la malla de validación ya se encuentra en formato JSON o se debe crear a partir del archivo Excel
+            - nombre_malla (str) : Nombre que identifica a la malla de validación, ya sea de tipo JSON o de tipo Excel (Ambos archivos deben tener el mismo nombre)
+            - ruta (str) : Cadena de texto que ubica la ruta a la carpeta del proyecto o al repositorio
     """
     def __init__(self, nombre_api:str, json_malla: bool, nombre_malla : str, ruta:str):
         """
@@ -65,6 +60,11 @@ class validacion:
     
     # Método que accede al API para poder leer el dataframe
     def get_dataframe(self):
+        """Método de la clase validación que accede al conjunto de datos del API a través del token de acceso
+        
+        Args:
+            None
+        """
         # Accede al archivo Config
         self.get_token() 
         
@@ -140,6 +140,12 @@ class validacion:
                 
     # Método que valida los datos
     def validar_datos(self):
+        """Método de la clase validación que se encarga de validar la información del conjunto de datos a través de la malla de validación obtenida
+
+        Returns:
+            (pd.DataFrame, pd.Dataframe, pd.Dataframe):  Devuelve tres dataframes de Pandas con los resultados de la validación, la validación general, 
+            los registros validos y los registros no validos
+        """
         # Obtiene el dataframe del API
         self.get_dataframe()
         
@@ -154,6 +160,6 @@ class validacion:
         
         # Se inicia el proceso de validación
         print("INICIO PROCESO DE VALIDACIÓN DE DATOS")
-        validacion = mf.malla_validacion(data = self.dataframe, guia_validacion = self.malla)
-        return validacion
+        validacion, validas, novalidas = mf.malla_validacion(data = self.dataframe, guia_validacion = self.malla)
+        return validacion, validas, novalidas
         

@@ -13,6 +13,7 @@ Este Script es un módulo donde se almacenan las funciones que se utilizaran com
 # Importamos las librerias necesarias para poder correr el código
 import pandas as pd
 import numpy as np 
+import json
 # Libreria para definir los formatos de entrada y salida de los datos
 from typing import List, Optional, Dict, Tuple
 
@@ -375,16 +376,16 @@ def concatenate_Errores(row: pd.Series, cols_obligatorias: List[str]) -> str:
 
 
 
-def malla_validacion(data: pd.DataFrame, guia_validacion: Dict) -> pd.DataFrame:
+def malla_validacion(data: pd.DataFrame, guia_validacion: dict):
     """
     Realiza la validación de datos basada en la malla de validación.
 
     Args:
-        data (pd.DataFrame): DataFrame de datos a validar.
-        guia_validacion (Dict): Guía de validación que especifica las condiciones y valores para cada columna.
+        - data (pd.DataFrame): DataFrame de datos a validar.
+        - guia_validacion (dict): Malla de validación que especifica las condiciones y valores para cada columna.
 
     Returns:
-        pd.DataFrame: DataFrame con los resultados de la validación, incluyendo columnas de errores y puntuación de validación.
+        pd.DataFrame, pd.DataFrame, pd.DataFrame: Devuelve tres dataFrames de pandas con los resultados de la validación, incluyendo columnas de errores y puntuación de validación
     """
     
     # Filtrar columnas relevantes según la guía de validación
@@ -578,3 +579,37 @@ def expand_cols(data: pd.DataFrame, diccionario: Dict) -> pd.DataFrame:
     return data
     
 
+# Función para crear el archivo JSON en el caso que no haya sido creado
+def create_json_malla(name_malla:str, ruta:str):
+    """
+    Función que crea el archivo JSON para la estructura de la malla de validación a partir de un archivo Excel y lo exporta en la ruta establecida
+
+    Args:
+        - name_malla (str): Nombre del archivo excel que contiene la estructura de la malla
+        - ruta (str): Ruta de la dirección de la carpeta del proyecto
+    returns:
+        Crea un archivo JSON en la carpeta `data/validation_json` dentro de la ruta específicada
+    """
+            
+    ruta_read =  '{}/data/validation_excel/{}.xlsx'.format(ruta, name_malla)
+    ruta_export = '{}/data/validation_json/{}.json'.format(ruta, name_malla)
+    try:
+        cond = pd.read_excel(ruta_read, sheet_name='Validaciones')
+        val = pd.read_excel(ruta_read, sheet_name='Valores')
+        val = val.dropna(subset=['valores'])
+    except Exception as e:
+        print('Nombre o archivo excel erroneo')
+        print(e)
+    
+    try:
+        malla = create_malla_dict(condiciones = cond, valores = val)
+    except Exception as e:
+        print('Estructura del Archivo excel erroneo')
+        print(e)
+    
+    try:
+        with open(ruta_export, 'w', encoding='utf8') as file:
+            json.dump(malla, file, ensure_ascii=False, indent = 1)
+    except Exception as e:
+        print('Error al intentar exportar el archivo json')
+        print(e)

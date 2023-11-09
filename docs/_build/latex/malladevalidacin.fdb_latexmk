@@ -1,0 +1,20 @@
+# Fdb version 4
+["pdflatex"] 1699485903 "malladevalidacin.tex" "malladevalidacin.pdf" "malladevalidacin" 1699485909 2
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/inputenc.sty" 1689456457 5048 4a74b0804469fbfae7849704c4687a07 ""
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/report.cls" 1689456457 23203 eb8fb57cc7a1166aa455e38e2f887972 ""
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size10.clo" 1689456457 8448 74078c4a887f2cdcd57c3ec111622740 ""
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty" 1689456457 2894 3ac7bdb70dd9b75530be2ade2842c355 ""
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty" 1689456451 220504 169e62639b625d84e162873f334fc3b1 ""
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf-dist/web2c/texmf.cnf" 1689456452 40967 d940221f8762fd5848760382d97d1226 ""
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf-var/web2c/pdftex/pdflatex.fmt" 1690080992 6764210 5aa7243d1e84527e4bed0e94d2b8b0e0 ""
+  "c:/Users/andre/AppData/Roaming/TinyTeX/texmf.cnf" 1681473949 956 3c30d803d50a80731379075439bae0c7 ""
+  "cmap.sty" 0 -1 0 ""
+  "malladevalidacin.aux" 1699485848 34 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "malladevalidacin.tex" 1699485847 6008 145750f996e1a65fde3c9bbe25a20598 ""
+  "sphinx.sty" 1699483164 44560 f9fbf51072c954d129c9bd5284cc4ccf ""
+  "sphinxmanual.cls" 1699483164 4241 7b0d7a37df7b5715fb0dbd585c52ecdb ""
+  (generated)
+  "malladevalidacin.aux"
+  "malladevalidacin.log"
+  "malladevalidacin.pdf"
+  (rewritten before read)

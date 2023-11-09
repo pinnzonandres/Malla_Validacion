@@ -12,4 +12,4 @@ Este Libro de Excel contiene dos hojas que definen los siguientes parámetros:
 - En la segunda hoja se almacenan los distintos valores que puede tomar cada pregunta, ya sea desde una lista de valores hasta un condicional de tipo expresión regular.
 
 
-Para realizar la validación de una encuesta nueva, debe añadir un nuevo libro de Excel en la carpeta ____, según la estructura que se encuentra en _____. Una vez la ha definido, ingrese al script de Python y añada la ruta completa de la ubicación del archivo.
+Para realizar la validación de una encuesta nueva, debe añadir un nuevo libro de Excel en la carpeta ____, según la estructura que se encuentra en _____. Una vez la ha definido, ingrese al script de Python y añada la ruta completa de la ubicación del archivo. 
