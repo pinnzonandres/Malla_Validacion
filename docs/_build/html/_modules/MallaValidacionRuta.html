@@ -206,7 +206,7 @@
 
 <span class="c1"># Se importa el script MallaFunctions como un módulo para poder acceder a sus funciones</span>
 <span class="kn">import</span> <span class="nn">malla_functions</span> <span class="k">as</span> <span class="nn">mf</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Use</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">SchemaError</span><span class="p">,</span> <span class="n">Or</span>
 
 
 <span class="c1"># Definición de la clase validacion</span>
@@ -216,38 +216,40 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Esta clase tiene como objetivo descargar y validar los datos a partir de la malla de validación entregada</span>
 <span class="sd">    </span>
 <span class="sd">    Atributos: </span>
-<span class="sd">            - nombre_api (str) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT</span>
+<span class="sd">            - token (dict) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT</span>
 <span class="sd">            - json_malla (bool) : Booleano que le indica a la clase si la malla de validación ya se encuentra en formato JSON o se debe crear a partir del archivo Excel</span>
 <span class="sd">            - nombre_malla (str) : Nombre que identifica a la malla de validación, ya sea de tipo JSON o de tipo Excel (Ambos archivos deben tener el mismo nombre)</span>
 <span class="sd">            - ruta (str) : Cadena de texto que ubica la ruta a la carpeta del proyecto o al repositorio</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nombre_api</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">json_malla</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">nombre_malla</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ruta</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">json_malla</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">nombre_malla</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ruta</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inicialización de la instancia validación</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
-<span class="sd">            nombre_api (str) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT</span>
+<span class="sd">            token (dict) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT</span>
 <span class="sd">            json_malla (bool) : Booleano que le indica a la clase si la malla de validación ya se encuentra en formato JSON o se debe crear a partir del archivo Excel</span>
 <span class="sd">            nombre_malla (str) : Nombre que identifica a la malla de validación, ya sea de tipo JSON o de tipo Excel (Ambos archivos deben tener el mismo nombre)</span>
 <span class="sd">            ruta (str) : Cadena de texto que ubica la ruta a la carpeta del proyecto o al repositorio</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/config/</span><span class="si">{}</span><span class="s2">.json&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ruta</span><span class="p">,</span> <span class="n">nombre_api</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">token</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bool_malla</span> <span class="o">=</span> <span class="n">json_malla</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ruta</span> <span class="o">=</span> <span class="n">ruta</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nombre_malla</span> <span class="o">=</span> <span class="n">nombre_malla</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">malla</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validacion</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
         
     <span class="c1"># Método que lee el archivo JSON con la configuracion</span>
     <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Método que revisa si la estructura del token está correcta</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conf_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">({</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">And</span><span class="p">(</span><span class="n">Use</span><span class="p">(</span><span class="nb">str</span><span class="p">)),</span><span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="n">And</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="o">==</span> <span class="s2">&quot;GET&quot;</span><span class="p">),</span><span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span><span class="n">And</span><span class="p">(</span><span class="n">Use</span><span class="p">(</span><span class="nb">str</span><span class="p">))}})</span>
+        
         <span class="k">try</span><span class="p">:</span> 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> 
+            <span class="n">mf</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">conf_schema</span> <span class="o">=</span> <span class="n">conf_schema</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>  
-    
+            
     <span class="c1"># Método que accede al API para poder leer el dataframe</span>
     <span class="k">def</span> <span class="nf">get_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Método de la clase validación que accede al conjunto de datos del API a través del token de acceso</span>
@@ -256,12 +258,15 @@
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Accede al archivo Config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_token</span><span class="p">()</span> 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_token</span><span class="p">()</span> 
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Problema con el Token&quot;</span><span class="p">)</span>
         
         <span class="c1"># Se realiza la conexión con el API</span>
         <span class="k">try</span><span class="p">:</span> 
-            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">],</span>
-                                    <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">])</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">],</span>
+                                    <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Conexión Fallida&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>

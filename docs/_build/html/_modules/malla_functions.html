@@ -202,6 +202,8 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Use</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">SchemaError</span><span class="p">,</span> <span class="n">Or</span>
+
 <span class="c1"># Libreria para definir los formatos de entrada y salida de los datos</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -284,18 +286,18 @@
     <span class="c1"># Se define un diccionario vacío donde se va a almacenar el resultado</span>
     <span class="n">malla</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     
-    <span class="c1"># Se aplica la función get_list_condiciones para tener las condiciones corregidas</span>
-    <span class="n">condiciones</span><span class="p">[</span><span class="s1">&#39;condicion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">condiciones</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_list_condiciones</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-    
-    <span class="c1"># Se aplica la función get_list_valores para tener los valores corregidas</span>
-    <span class="n">valores</span><span class="p">[</span><span class="s1">&#39;valores&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">valores</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_list_valores</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Se aplica la función get_list_condiciones para tener las condiciones y valores corregidos</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">condiciones</span><span class="p">[</span><span class="s1">&#39;condicion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">condiciones</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_list_condiciones</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">valores</span><span class="p">[</span><span class="s1">&#39;valores&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">valores</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_list_valores</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error al aplicar las funciones get_list_condiciones y get_list_valores&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     
     <span class="c1"># Se realiza un merge de los dos dataframes para poder iterar sobre un único dataframe</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">condiciones</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">valores</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s1">&#39;variable&#39;</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Problemas con el archivo Excel de Malla de Validación&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">pd</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">MergeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Problemas con el archivo Excel de Malla de Validación&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         
     <span class="c1"># Se itera sobre valor y columna del dataframe</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
@@ -387,10 +389,16 @@
         <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">valores</span> <span class="ow">in</span> <span class="n">diccionario</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="c1"># En el caso que la condición provenga de la variable Edad no se verifican valores de una lista sino que la Edad sea mayor a la establecida por la condición</span>
             <span class="k">if</span> <span class="s1">&#39;Edad&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
-                <span class="n">condicion_col</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">valores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">condicion_col</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">valores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error al acceder a la columna &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; en el DataFrame de datos&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
             <span class="k">else</span><span class="p">:</span> 
                 <span class="c1"># En el caso que no sea Edad se verifica que el valor se encuentre en la lista específicada</span>
-                <span class="n">condicion_col</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valores</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">condicion_col</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valores</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error al acceder a la columna &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; en el DataFrame de datos&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
             <span class="c1"># Se almacena la condición creada en el valor condicion_Total</span>
             
             <span class="c1"># Si no hay más condiciones la guarda, si hay más condiciones las combina según el tipo de validacion (OR, AND)</span>
@@ -470,10 +478,10 @@
         <span class="n">tipo</span> <span class="o">=</span> <span class="n">diccionario</span><span class="p">[</span><span class="s1">&#39;Tipo&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">tipo</span> <span class="o">==</span> <span class="s1">&#39;regex&#39;</span><span class="p">:</span>
             <span class="n">condicion</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">valores</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">tipo</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
-            <span class="n">condicion</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">todos_en_valores_permitidos</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">valores</span><span class="p">,</span> <span class="n">col</span><span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">tipo</span> <span class="o">==</span> <span class="s1">&#39;listlist&#39;</span><span class="p">:</span>
             <span class="n">condicion</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">validar_listlist</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">valores</span><span class="p">,</span> <span class="n">col</span><span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tipo</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
+            <span class="n">condicion</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">todos_en_valores_permitidos</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">valores</span><span class="p">,</span> <span class="n">col</span><span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">condicion</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valores</span><span class="p">)</span>
         
@@ -494,26 +502,30 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.Series: Serie actualizada con los valores validados.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="c1"># En la columna se guardan valores de tipo 0, es decír inicialmente todos los datos están correctos</span>
-    <span class="n">file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    
-    <span class="c1"># Realiza la verificación de la condición o pasa en el caso que no haya condición</span>
-    <span class="k">if</span> <span class="n">condicion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">val_data</span> <span class="o">=</span> <span class="n">data</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">val_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">condicion</span><span class="p">]</span>
-    
-    <span class="c1"># Revisa los valores en la variable en el dataframe condicionado por la condición</span>
-    <span class="c1"># Va a retornar 0 si el valor está correcto y 1 si el valor está erroneo</span>
-    <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">val_series</span> <span class="o">=</span> <span class="n">val_data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">val_series</span> <span class="o">=</span> <span class="n">val_data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">values</span><span class="p">)[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># En la columna se guardan valores de tipo 0, es decír inicialmente todos los datos están correctos</span>
+        <span class="n">file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         
-    <span class="c1"># Se actualiza la columna con valores 0, con 1 en los indices donde el dato está erroneo.</span>
-    <span class="n">file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">val_series</span><span class="p">)</span>
-    
-    <span class="k">return</span> <span class="n">file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+        <span class="c1"># Realiza la verificación de la condición o pasa en el caso que no haya condición</span>
+        <span class="k">if</span> <span class="n">condicion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">condicion</span><span class="p">]</span>
+        
+        <span class="c1"># Revisa los valores en la variable en el dataframe condicionado por la condición</span>
+        <span class="c1"># Va a retornar 0 si el valor está correcto y 1 si el valor está erroneo</span>
+        <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val_series</span> <span class="o">=</span> <span class="n">val_data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val_series</span> <span class="o">=</span> <span class="n">val_data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">values</span><span class="p">)[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            
+        <span class="c1"># Se actualiza la columna con valores 0, con 1 en los indices donde el dato está erroneo.</span>
+        <span class="n">file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">val_series</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Manejo de excepciones para identificar y manejar errores específicos</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error al validar valores en la columna &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
 
 <span class="c1"># Función para convertir las variables numéricas de tipo entero</span>
@@ -577,76 +589,80 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame, pd.DataFrame, pd.DataFrame: Devuelve tres dataFrames de pandas con los resultados de la validación, incluyendo columnas de errores y puntuación de validación</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="c1"># Filtrar columnas relevantes según la guía de validación</span>
-    <span class="n">columnas</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">guia_validacion</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">columnas</span><span class="p">]</span>
-    
-    <span class="c1"># Identificar columnas numéricas y convertirlas a tipo entero si es posible</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">numeric</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">guia_validacion</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;valores&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span> <span class="k">if</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="s1">&#39;valores&#39;</span><span class="p">][</span><span class="s1">&#39;Tipo&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;int&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">columnas</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Problemas con la malla de validación entregada&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">restore_type</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">numeric</span><span class="p">)</span>
-    
-    <span class="c1"># Crear una copia del DataFrame original</span>
-    <span class="n">store_file</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    
-    <span class="c1"># Realizar validación para cada columna según la malla de validación</span>
-    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columnas</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Se crean las condiciones y valores</span>
-            <span class="n">condicion</span> <span class="o">=</span> <span class="n">crear_condicion</span><span class="p">(</span><span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;condicion&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">,</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;iand&#39;</span><span class="p">],</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;excluida_PTA&#39;</span><span class="p">])</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="n">verificar_valores</span><span class="p">(</span><span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;valores&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-            
-            <span class="c1"># Se verifica la consistencia de la variable según los valores y condiciones</span>
-            <span class="n">store_file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">validar_valor</span><span class="p">(</span><span class="n">condicion</span> <span class="o">=</span> <span class="n">condicion</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">store_file</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Problema para validar la columna </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="c1"># Filtrar columnas relevantes según la guía de validación</span>
+        <span class="n">columnas</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">guia_validacion</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">columnas</span><span class="p">]</span>
         
-    <span class="c1"># Se identifican las variables obligatorias</span>
-    <span class="n">obligatorias</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">guia_validacion</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;opcional&#39;</span><span class="p">]</span><span class="o">==</span> <span class="kc">False</span><span class="p">]</span>
-    <span class="n">obligatorias</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">obligatorias</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">store_file</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="c1"># Identificar columnas numéricas y convertirlas a tipo entero si es posible</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">numeric</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">guia_validacion</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;valores&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span> <span class="k">if</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="s1">&#39;valores&#39;</span><span class="p">][</span><span class="s1">&#39;Tipo&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;int&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">columnas</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Problemas con la malla de validación entregada&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">restore_type</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">numeric</span><span class="p">)</span>
+        
+        <span class="c1"># Crear una copia del DataFrame original</span>
+        <span class="n">store_file</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># Realizar validación para cada columna según la malla de validación</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columnas</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Se crean las condiciones y valores</span>
+                <span class="n">condicion</span> <span class="o">=</span> <span class="n">crear_condicion</span><span class="p">(</span><span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;condicion&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">,</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;iand&#39;</span><span class="p">],</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;excluida_PTA&#39;</span><span class="p">])</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">verificar_valores</span><span class="p">(</span><span class="n">guia_validacion</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="s1">&#39;valores&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+                
+                <span class="c1"># Se verifica la consistencia de la variable según los valores y condiciones</span>
+                <span class="n">store_file</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">validar_valor</span><span class="p">(</span><span class="n">condicion</span> <span class="o">=</span> <span class="n">condicion</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">store_file</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Problema para validar la columna </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            
+        <span class="c1"># Se identifican las variables obligatorias</span>
+        <span class="n">obligatorias</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">guia_validacion</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">guia_validacion</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;opcional&#39;</span><span class="p">]</span><span class="o">==</span> <span class="kc">False</span><span class="p">]</span>
+        <span class="n">obligatorias</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">obligatorias</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">store_file</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        
+        <span class="c1"># Se añade la validación de número de documento duplicado</span>
+        <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;Documento_Duplicado&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;num_documento&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        
+        <span class="c1"># Se agregan variables que permiten identificar los registros que están correctos o erroneos</span>
+        <span class="n">id_hogar</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">num_doc_representante</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;NUMERODOCUMENTOTITULAR&#39;</span><span class="p">]</span>
+        <span class="n">num_doc_integrante</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;num_documento&#39;</span><span class="p">]</span>
+        <span class="n">store_file</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span> <span class="n">id_hogar</span><span class="p">)</span>
+        <span class="n">store_file</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span> <span class="n">num_doc_representante</span><span class="p">)</span>
+        <span class="n">store_file</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">,</span> <span class="n">num_doc_integrante</span><span class="p">)</span>
+        
+        <span class="n">obligatorias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Documento_Duplicado&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Se realiza la suma de los errores para cada registro del dataframe</span>
+        <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">store_file</span><span class="p">[</span><span class="n">obligatorias</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Se crea la columna donde se almacenan las columnas que contienen errores</span>
+        <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;Errores&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">store_file</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">concatenate_Errores</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">obligatorias</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Se crean los dataframes donde se almacenan los registros validos y los registros con errores</span>
+        <span class="n">resultados</span> <span class="o">=</span> <span class="n">store_file</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Validacion&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">})</span>
+        <span class="n">data_con_errores</span> <span class="o">=</span> <span class="n">resultados</span><span class="p">[</span><span class="n">resultados</span><span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">])</span>
+        <span class="n">data_sin_errores</span> <span class="o">=</span> <span class="n">resultados</span><span class="p">[</span><span class="n">resultados</span><span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">])</span>
+        
+        <span class="n">novalid</span> <span class="o">=</span> <span class="n">data_con_errores</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">store_file</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)[[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">,</span><span class="s1">&#39;Validacion&#39;</span><span class="p">,</span><span class="s1">&#39;Errores&#39;</span><span class="p">]]</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">data_sin_errores</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">store_file</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)[[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">,</span><span class="s1">&#39;Validacion&#39;</span><span class="p">,</span><span class="s1">&#39;Errores&#39;</span><span class="p">]]</span>
+        
+        <span class="c1"># Imprimir resultados</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RESULTADOS MALLA DE VALIDACIÓN&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;El número total de elementos validados fueron </span><span class="si">{}</span><span class="s2"> participantes que equivale a </span><span class="si">{}</span><span class="s2"> Hogares&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">store_file</span><span class="p">),</span> <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;El número total de participantes con valores correctos es </span><span class="si">{}</span><span class="s2"> que equivale a </span><span class="si">{}</span><span class="s2"> hogares&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">),</span><span class="n">valid</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;El número total de participantes con valores erroneos es </span><span class="si">{}</span><span class="s2"> que equivale a </span><span class="si">{}</span><span class="s2"> hogares&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">novalid</span><span class="p">),</span><span class="n">novalid</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()))</span>
+        
+        <span class="k">return</span> <span class="n">store_file</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">novalid</span>
     
-    <span class="c1"># Se añade la validación de número de documento duplicado</span>
-    <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;Documento_Duplicado&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;num_documento&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    
-    <span class="c1"># Se agregan variables que permiten identificar los registros que están correctos o erroneos</span>
-    <span class="n">id_hogar</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-    <span class="n">num_doc_representante</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;NUMERODOCUMENTOTITULAR&#39;</span><span class="p">]</span>
-    <span class="n">num_doc_integrante</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;num_documento&#39;</span><span class="p">]</span>
-    <span class="n">store_file</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span> <span class="n">id_hogar</span><span class="p">)</span>
-    <span class="n">store_file</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span> <span class="n">num_doc_representante</span><span class="p">)</span>
-    <span class="n">store_file</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">,</span> <span class="n">num_doc_integrante</span><span class="p">)</span>
-    
-    <span class="n">obligatorias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Documento_Duplicado&#39;</span><span class="p">)</span>
-    
-    <span class="c1"># Se realiza la suma de los errores para cada registro del dataframe</span>
-    <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">store_file</span><span class="p">[</span><span class="n">obligatorias</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-    
-    <span class="c1"># Se crea la columna donde se almacenan las columnas que contienen errores</span>
-    <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;Errores&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">store_file</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">concatenate_Errores</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">obligatorias</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    
-    <span class="c1"># Se crean los dataframes donde se almacenan los registros validos y los registros con errores</span>
-    <span class="n">resultados</span> <span class="o">=</span> <span class="n">store_file</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Validacion&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">})</span>
-    <span class="n">data_con_errores</span> <span class="o">=</span> <span class="n">resultados</span><span class="p">[</span><span class="n">resultados</span><span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">])</span>
-    <span class="n">data_sin_errores</span> <span class="o">=</span> <span class="n">resultados</span><span class="p">[</span><span class="n">resultados</span><span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Validacion&#39;</span><span class="p">])</span>
-    
-    <span class="n">novalid</span> <span class="o">=</span> <span class="n">data_con_errores</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">store_file</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)[[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">,</span><span class="s1">&#39;Validacion&#39;</span><span class="p">,</span><span class="s1">&#39;Errores&#39;</span><span class="p">]]</span>
-    <span class="n">valid</span> <span class="o">=</span> <span class="n">data_sin_errores</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">store_file</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)[[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_TITULAR&#39;</span><span class="p">,</span><span class="s1">&#39;NUM_DOC_INTEGRANTE&#39;</span><span class="p">,</span><span class="s1">&#39;Validacion&#39;</span><span class="p">,</span><span class="s1">&#39;Errores&#39;</span><span class="p">]]</span>
-    
-    <span class="c1"># Imprimir resultados</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RESULTADOS MALLA DE VALIDACIÓN&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;El número total de elementos validados fueron </span><span class="si">{}</span><span class="s2"> participantes que equivale a </span><span class="si">{}</span><span class="s2"> Hogares&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">store_file</span><span class="p">),</span> <span class="n">store_file</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;El número total de participantes con valores correctos es </span><span class="si">{}</span><span class="s2"> que equivale a </span><span class="si">{}</span><span class="s2"> hogares&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">),</span><span class="n">valid</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;El número total de participantes con valores erroneos es </span><span class="si">{}</span><span class="s2"> que equivale a </span><span class="si">{}</span><span class="s2"> hogares&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">novalid</span><span class="p">),</span><span class="n">novalid</span><span class="p">[</span><span class="s1">&#39;ID_HOGAR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()))</span>
-    
-    <span class="k">return</span> <span class="n">store_file</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">novalid</span></div>
-
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Manejo de excepciones para identificar y manejar errores específicos</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al realizar la validación de datos basada en la malla de validación.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
 
 
 
@@ -807,6 +823,28 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error al intentar exportar el archivo json&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
 
+        
+        
+<span class="c1"># Función para validar el esquema del token API</span>
+<span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">conf_schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Función que valida la estructura que va a obtener los datos del API</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        conf_schema (dict): Diccionario con el esquema que va a utilizar en la revisión</span>
+<span class="sd">        token (dict):</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        SchemaError: En el caso que la validación falle, saltará un SchemaError</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: Booleano que indica si el token paso la validación</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conf_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="n">SchemaError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="kc">False</span>
 </pre></div>
         </article>
       </div>
