@@ -87,11 +87,28 @@
 
 
 \sphinxAtStartPar
-Libreria de Malla de Validación
+Proyecto de Python con las clases y modulos requeridos para la validación de los datos adquiridos a través de los formularios de RIT
 
 
-\chapter{Clase de Validación}
-\label{\detokenize{index:clase-de-validacion}}\index{validacion (clase en MallaValidacionRuta)@\spxentry{validacion}\spxextra{clase en MallaValidacionRuta}}
+\chapter{Clase Validación}
+\label{\detokenize{index:clase-validacion}}
+\sphinxAtStartPar
+La clase validación se refiere al objeto que va almacenar la información relacionada a la validación de la información:
+\begin{itemize}
+\item {} 
+\sphinxAtStartPar
+Conjunto de Datos
+
+\item {} 
+\sphinxAtStartPar
+Malla de Validación (JSON)
+
+\item {} 
+\sphinxAtStartPar
+Resultados de la validación
+
+\end{itemize}
+\index{validacion (clase en MallaValidacionRuta)@\spxentry{validacion}\spxextra{clase en MallaValidacionRuta}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{index:MallaValidacionRuta.validacion}}
@@ -99,42 +116,24 @@ Libreria de Malla de Validación
 \pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class\DUrole{w}{ }}}\sphinxcode{\sphinxupquote{MallaValidacionRuta.}}\sphinxbfcode{\sphinxupquote{validacion}}}{\sphinxparam{\DUrole{n}{nombre\_api}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{str}}\sphinxparamcomma \sphinxparam{\DUrole{n}{json\_malla}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{bool}}\sphinxparamcomma \sphinxparam{\DUrole{n}{nombre\_malla}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{str}}\sphinxparamcomma \sphinxparam{\DUrole{n}{ruta}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{str}}}{}
 \pysigstopsignatures
 \sphinxAtStartPar
-validación
-Clase Validación
 Esta clase tiene como objetivo descargar y validar los datos a partir de la malla de validación entregada
 \begin{description}
 \sphinxlineitem{Atributos:}\begin{itemize}
 \item {} 
 \sphinxAtStartPar
-config (str): Ruta del archivo json con la configuración del API al acceso de datos
+nombre\_api (str) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT
 
 \item {} 
 \sphinxAtStartPar
-bool\_malla (bool): Booleano que identifica si la malla está en formato JSON o en formato Excel
+json\_malla (bool) : Booleano que le indica a la clase si la malla de validación ya se encuentra en formato JSON o se debe crear a partir del archivo Excel
 
 \item {} 
 \sphinxAtStartPar
-ruta (str): Ruta a la carpeta del proyecto o al repositorio
+nombre\_malla (str) : Nombre que identifica a la malla de validación, ya sea de tipo JSON o de tipo Excel (Ambos archivos deben tener el mismo nombre)
 
 \item {} 
 \sphinxAtStartPar
-nombre\_malla (str): Nombre del archivo que va a tomar la clase como Malla, ya sea en formato JSON o formato Excel
-
-\item {} 
-\sphinxAtStartPar
-malla (dict): Variable que contiene la malla de validación
-
-\item {} 
-\sphinxAtStartPar
-token (dict): Variable que genera el token de acceso a los datos a partir de la ruta config
-
-\item {} 
-\sphinxAtStartPar
-dataframe (pd.DataFrame): Variable que almacena los datos adquiridos desde el API
-
-\item {} 
-\sphinxAtStartPar
-validación {[}pd.DataFrame, pd.DataFrame, pd.DataFrame{]}: Variable que contiene los resultados de la validación
+ruta (str) : Cadena de texto que ubica la ruta a la carpeta del proyecto o al repositorio
 
 \end{itemize}
 
@@ -142,9 +141,44 @@ validación {[}pd.DataFrame, pd.DataFrame, pd.DataFrame{]}: Variable que contien
 
 \end{fulllineitems}
 
+
+
+\chapter{Validación de la Información}
+\label{\detokenize{index:validacion-de-la-informacion}}
+\sphinxAtStartPar
+Para realizar el proceso de validación del conjunto de datos, una vez se ha definido la clase validación con los parámetros definidos, se ejecuta el método validar\_datos, este se va a encargar de descargar, normalizar y validar la información.
+\index{validar\_datos() (en el módulo MallaValidacionRuta.validacion)@\spxentry{validar\_datos()}\spxextra{en el módulo MallaValidacionRuta.validacion}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{index:MallaValidacionRuta.validacion.validar_datos}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxcode{\sphinxupquote{MallaValidacionRuta.validacion.}}\sphinxbfcode{\sphinxupquote{validar\_datos}}}{\sphinxparam{\DUrole{n}{self}}}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+Método de la clase validación que se encarga de validar la información del conjunto de datos a través de la malla de validación obtenida
 \begin{quote}\begin{description}
-\sphinxlineitem{members}
+\sphinxlineitem{Devuelve}
+\sphinxAtStartPar
+Devuelve tres dataframes de Pandas con los resultados de la validación, la validación general,
+los registros validos y los registros no validos
+
+\sphinxlineitem{Tipo del valor devuelto}
+\sphinxAtStartPar
+(pd.DataFrame, pd.Dataframe, pd.Dataframe)
+
 \end{description}\end{quote}
+
+\end{fulllineitems}
+
+
+
+\chapter{Funciones Adicionales}
+\label{\detokenize{index:funciones-adicionales}}
+
+\section{Crear Malla de Validación en formato JSON}
+\label{\detokenize{index:crear-malla-de-validacion-en-formato-json}}
+\sphinxAtStartPar
+En el caso que la estructura de la malla de validación se encuentre en formato Excel, existe la función create\_json\_malla del modulo malla\_functions que le va a permitir crear el archivo json con la malla de validación.
 \index{create\_json\_malla() (en el módulo malla\_functions)@\spxentry{create\_json\_malla()}\spxextra{en el módulo malla\_functions}}
 
 \begin{fulllineitems}
@@ -153,30 +187,66 @@ validación {[}pd.DataFrame, pd.DataFrame, pd.DataFrame{]}: Variable que contien
 \pysiglinewithargsret{\sphinxcode{\sphinxupquote{malla\_functions.}}\sphinxbfcode{\sphinxupquote{create\_json\_malla}}}{\sphinxparam{\DUrole{n}{name\_malla}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{str}}\sphinxparamcomma \sphinxparam{\DUrole{n}{ruta}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{str}}}{}
 \pysigstopsignatures
 \sphinxAtStartPar
-Función que es capaz de crear el archivo JSON para la estructura de la malla de validación a partir de un archivo Excel
+Función que crea el archivo JSON para la estructura de la malla de validación a partir de un archivo Excel y lo exporta en la ruta establecida
 \begin{quote}\begin{description}
 \sphinxlineitem{Parámetros}\begin{itemize}
 \item {} 
 \sphinxAtStartPar
-\sphinxstyleliteralstrong{\sphinxupquote{name\_malla}} (\sphinxstyleliteralemphasis{\sphinxupquote{str}}) \textendash{} Nombre del archivo excel que contiene la estructura de la malla
+\sphinxstyleliteralstrong{\sphinxupquote{name\_malla}} (\sphinxstyleliteralemphasis{\sphinxupquote{\sphinxhyphen{}}}) \textendash{} Nombre del archivo excel que contiene la estructura de la malla
 
 \item {} 
 \sphinxAtStartPar
-\sphinxstyleliteralstrong{\sphinxupquote{ruta}} (\sphinxstyleliteralemphasis{\sphinxupquote{str}}) \textendash{} Ruta de la dirección de la carpeta del proyecto
+\sphinxstyleliteralstrong{\sphinxupquote{ruta}} (\sphinxstyleliteralemphasis{\sphinxupquote{\sphinxhyphen{}}}) \textendash{} Ruta de la dirección de la carpeta del proyecto
 
 \end{itemize}
 
 \sphinxlineitem{Devuelve}
 \sphinxAtStartPar
-None
+Crea un archivo JSON en la carpeta \sphinxtitleref{data/validation\_json} dentro de la ruta específicada
 
 \end{description}\end{quote}
 
 \end{fulllineitems}
 
+
+
+\section{Malla de Validación}
+\label{\detokenize{index:id1}}
+\sphinxAtStartPar
+La siguiente función es la encargada de realizar la validación de los datos a partir de las condiciones de la Malla de Validación
+\index{malla\_validacion() (en el módulo malla\_functions)@\spxentry{malla\_validacion()}\spxextra{en el módulo malla\_functions}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{index:malla_functions.malla_validacion}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxcode{\sphinxupquote{malla\_functions.}}\sphinxbfcode{\sphinxupquote{malla\_validacion}}}{\sphinxparam{\DUrole{n}{data}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{DataFrame}}\sphinxparamcomma \sphinxparam{\DUrole{n}{guia\_validacion}\DUrole{p}{:}\DUrole{w}{ }\DUrole{n}{dict}}}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+Realiza la validación de datos basada en la malla de validación.
 \begin{quote}\begin{description}
-\sphinxlineitem{members}
+\sphinxlineitem{Parámetros}\begin{itemize}
+\item {} 
+\sphinxAtStartPar
+\sphinxstyleliteralstrong{\sphinxupquote{data}} (\sphinxstyleliteralemphasis{\sphinxupquote{\sphinxhyphen{}}}) \textendash{} DataFrame de datos a validar.
+
+\item {} 
+\sphinxAtStartPar
+\sphinxstyleliteralstrong{\sphinxupquote{guia\_validacion}} (\sphinxstyleliteralemphasis{\sphinxupquote{\sphinxhyphen{}}}) \textendash{} Malla de validación que especifica las condiciones y valores para cada columna.
+
+\end{itemize}
+
+\sphinxlineitem{Devuelve}
+\sphinxAtStartPar
+Devuelve tres dataFrames de pandas con los resultados de la validación, incluyendo columnas de errores y puntuación de validación
+
+\sphinxlineitem{Tipo del valor devuelto}
+\sphinxAtStartPar
+pd.DataFrame, pd.DataFrame, pd.DataFrame
+
 \end{description}\end{quote}
+
+\end{fulllineitems}
+
 
 
 
