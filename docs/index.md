@@ -32,7 +32,7 @@ En el caso que la estructura de la malla de validación se encuentre en formato 
 ```
 
 ### Malla de Validación
-La siguiente función es la encargada de realizar la validación de los datos a partir de las condiciones de la Malla de Validación
+La siguiente función es la encargada de realizar la validación de los datos a partir de las condiciones de la Malla de Validación.
 ```{eval-rst}  
 .. autofunction:: malla_functions.malla_validacion
 
