@@ -462,9 +462,9 @@ def malla_validacion(data: pd.DataFrame, guia_validacion: dict):
         # Imprimir resultados
         print("RESULTADOS MALLA DE VALIDACIÓN")
         print("El número total de elementos validados fueron {} participantes que equivale a {} Hogares".format(len(store_file), store_file['ID_HOGAR'].nunique()))
-        print("="*70)
+        print("="*100)
         print("El número total de participantes con valores correctos es {} que equivale a {} hogares".format(len(valid),valid['ID_HOGAR'].nunique()))
-        print("="*70)
+        print("="*100)
         print("El número total de participantes con valores erroneos es {} que equivale a {} hogares".format(len(novalid),novalid['ID_HOGAR'].nunique()))
         
         return store_file, valid, novalid

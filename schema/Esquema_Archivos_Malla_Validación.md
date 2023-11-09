@@ -119,7 +119,7 @@ Tomando los mismos valores de ejemplo de la malla de validación de tipo JSON, l
 |Direccion_Rural|"^.{3,100}$"|regex|
 
 ### Comentarios sobre la malla de validación tipo Excel
-Una vez se ha definido la estructura de la malla de validación en el libro Excel, es necesario correr la función [`create_json_malla`]() qué será la encargada de crear el archivo de malla de validación de tipo JSON.
+Una vez se ha definido la estructura de la malla de validación en el libro Excel, es necesario correr la función [`create_json_malla`](https://malla-de-validacion.readthedocs.io/es-mx/latest/#malla_functions.create_json_malla) qué será la encargada de crear el archivo de malla de validación de tipo JSON.
 
 ### Ruta de exportación del archivo
 Dentro de la carpeta del proyecto, este archivo debe ser almacenado en la carpeta `data/validation_excel/`, esta carpeta está diseñada para almacenar todos los archivos de malla de validación de formato excel, el script de Python va leer la malla de validación de tipo excel de los datos que se encuentran en esta carpeta para crear el archivo de tipo json.

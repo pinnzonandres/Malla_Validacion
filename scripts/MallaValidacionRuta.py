@@ -160,11 +160,22 @@ class validacion:
         # Obtiene la malla de validación
         self.get_malla()
         
-        # Expande las posibles columnas adicionales que se deben expandir
-        self.dataframe = mf.expand_cols(self.dataframe, self.malla)
+        try:
+            # Expande las posibles columnas adicionales que se deben expandir
+            self.dataframe = mf.expand_cols(self.dataframe, self.malla)
+            print("Dataframe Expandido")
+        except Exception as e:
+            print("No se logró expandir el dataframe")
+            print(e)
+        
         
         # Se inicia el proceso de validación
         print("INICIO PROCESO DE VALIDACIÓN DE DATOS")
-        validacion, validas, novalidas = mf.malla_validacion(data = self.dataframe, guia_validacion = self.malla)
-        return validacion, validas, novalidas
+        try:
+            validacion, validas, novalidas = mf.malla_validacion(data = self.dataframe, guia_validacion = self.malla)
+            print("FINZALIZACIÓN PROCESO DE VALIDACIÓN DE DATOS")
+            return validacion, validas, novalidas
+        except Exception as e:
+            print("Problemas al intentar validar la información")
+            print(e)
         
