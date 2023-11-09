@@ -148,6 +148,6 @@ La estructura y valores del archivo de acceso debe ser de la siguiente manera
   }
 }
 ```
-### Ruta de exportación del archivo
+### Ubicación del Token
 Dentro de la carpeta del proyecto, este archivo debe ser almacenado en la carpeta `config/`, esta carpeta está diseñada únicamente para almacenar las rutas de acceso a los diferentes formularios que se van a validar.
 

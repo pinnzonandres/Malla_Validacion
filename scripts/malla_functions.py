@@ -14,6 +14,8 @@ Este Script es un módulo donde se almacenan las funciones que se utilizaran com
 import pandas as pd
 import numpy as np 
 import json
+from schema import Schema, And, Use, Optional, SchemaError, Or
+
 # Libreria para definir los formatos de entrada y salida de los datos
 from typing import List, Optional, Dict, Tuple
 
@@ -96,18 +98,18 @@ def create_malla_dict(condiciones: pd.DataFrame, valores: pd.DataFrame)-> Dict[s
     # Se define un diccionario vacío donde se va a almacenar el resultado
     malla = dict()
     
-    # Se aplica la función get_list_condiciones para tener las condiciones corregidas
-    condiciones['condicion'] = condiciones.apply(get_list_condiciones, axis = 1)
-    
-    # Se aplica la función get_list_valores para tener los valores corregidas
-    valores['valores'] = valores.apply(get_list_valores, axis = 1)
+    # Se aplica la función get_list_condiciones para tener las condiciones y valores corregidos
+    try:
+        condiciones['condicion'] = condiciones.apply(get_list_condiciones, axis = 1)
+        valores['valores'] = valores.apply(get_list_valores, axis = 1)
+    except Exception as e:
+        raise ValueError("Error al aplicar las funciones get_list_condiciones y get_list_valores") from e
     
     # Se realiza un merge de los dos dataframes para poder iterar sobre un único dataframe
     try:
         result = condiciones.merge(valores, on = 'variable', how = 'left')
-    except Exception as e:
-        print('Problemas con el archivo Excel de Malla de Validación')
-        print(e)
+    except pd.errors.MergeError as e:
+        raise ValueError("Problemas con el archivo Excel de Malla de Validación") from e
         
     # Se itera sobre valor y columna del dataframe
     for index, row in result.iterrows():
@@ -199,10 +201,16 @@ def crear_condicion(diccionario: Optional[Dict], data: pd.DataFrame, iand: bool 
         for col, valores in diccionario.items():
             # En el caso que la condición provenga de la variable Edad no se verifican valores de una lista sino que la Edad sea mayor a la establecida por la condición
             if 'Edad' in col:
-                condicion_col = data[col] > valores[0]
+                try:
+                    condicion_col = data[col] > valores[0]
+                except KeyError as e:
+                    raise ValueError(f"Error al acceder a la columna '{col}' en el DataFrame de datos") from e
             else: 
                 # En el caso que no sea Edad se verifica que el valor se encuentre en la lista específicada
-                condicion_col = data[col].isin(valores)
+                try:
+                    condicion_col = data[col].isin(valores)
+                except KeyError as e:
+                    raise ValueError(f"Error al acceder a la columna '{col}' en el DataFrame de datos") from e
             # Se almacena la condición creada en el valor condicion_Total
             
             # Si no hay más condiciones la guarda, si hay más condiciones las combina según el tipo de validacion (OR, AND)
@@ -282,10 +290,10 @@ def verificar_valores(diccionario: Optional[Dict], data: pd.DataFrame, col: str)
         tipo = diccionario['Tipo']
         if tipo == 'regex':
             condicion = data[col].astype(str).str.match(valores)
-        elif tipo == 'list':
-            condicion = data.apply(todos_en_valores_permitidos, args = (valores, col), axis = 1)
         elif tipo == 'listlist':
             condicion = data.apply(validar_listlist, args = (valores, col), axis = 1)
+        elif tipo == 'list':
+            condicion = data.apply(todos_en_valores_permitidos, args = (valores, col), axis = 1)
         else:
             condicion = data[col].isin(valores)
         
@@ -306,26 +314,30 @@ def validar_valor(condicion: Optional[pd.Series], values: Optional[pd.Series], c
     Returns:
         pd.Series: Serie actualizada con los valores validados.
     '''
-    # En la columna se guardan valores de tipo 0, es decír inicialmente todos los datos están correctos
-    file[col] = 0
-    
-    # Realiza la verificación de la condición o pasa en el caso que no haya condición
-    if condicion is None:
-        val_data = data
-    else:
-        val_data = data[condicion]
-    
-    # Revisa los valores en la variable en el dataframe condicionado por la condición
-    # Va a retornar 0 si el valor está correcto y 1 si el valor está erroneo
-    if values is None:
-        val_series = val_data[col].isnull().astype(int)
-    else:
-        val_series = val_data.where(values)[col].isnull().astype(int)
+    try:
+        # En la columna se guardan valores de tipo 0, es decír inicialmente todos los datos están correctos
+        file[col] = 0
         
-    # Se actualiza la columna con valores 0, con 1 en los indices donde el dato está erroneo.
-    file[col].update(val_series)
-    
-    return file[col]
+        # Realiza la verificación de la condición o pasa en el caso que no haya condición
+        if condicion is None:
+            val_data = data
+        else:
+            val_data = data[condicion]
+        
+        # Revisa los valores en la variable en el dataframe condicionado por la condición
+        # Va a retornar 0 si el valor está correcto y 1 si el valor está erroneo
+        if values is None:
+            val_series = val_data[col].isnull().astype(int)
+        else:
+            val_series = val_data.where(values)[col].isnull().astype(int)
+            
+        # Se actualiza la columna con valores 0, con 1 en los indices donde el dato está erroneo.
+        file[col].update(val_series)
+        
+        return file[col]
+    except Exception as e:
+        # Manejo de excepciones para identificar y manejar errores específicos
+        raise ValueError(f"Error al validar valores en la columna '{col}'") from e
 
 
 # Función para convertir las variables numéricas de tipo entero
@@ -387,76 +399,80 @@ def malla_validacion(data: pd.DataFrame, guia_validacion: dict):
     Returns:
         pd.DataFrame, pd.DataFrame, pd.DataFrame: Devuelve tres dataFrames de pandas con los resultados de la validación, incluyendo columnas de errores y puntuación de validación
     """
-    
-    # Filtrar columnas relevantes según la guía de validación
-    columnas = [i for i in data.columns if i in guia_validacion.keys()]
-    data = data[columnas]
-    
-    # Identificar columnas numéricas y convertirlas a tipo entero si es posible
     try:
-        numeric = [n for n in [m for m in [i for i in guia_validacion.keys() if guia_validacion[i]['valores'] is not None] if guia_validacion[m]['valores']['Tipo'] == 'int'] if n in columnas]
-    except Exception as e:
-        print('Problemas con la malla de validación entregada')
-        print(e)
-    data = restore_type(data, numeric)
-    
-    # Crear una copia del DataFrame original
-    store_file = data.copy()
-    
-    # Realizar validación para cada columna según la malla de validación
-    for col in columnas:
-        try:
-            # Se crean las condiciones y valores
-            condicion = crear_condicion(guia_validacion[col]['condicion'], data, guia_validacion[col]['iand'], guia_validacion[col]['excluida_PTA'])
-            values = verificar_valores(guia_validacion[col]['valores'], data, col)
-            
-            # Se verifica la consistencia de la variable según los valores y condiciones
-            store_file[col] = validar_valor(condicion = condicion, values = values, col = col, data = data, file = store_file)
-        except Exception as e:
-            print("Problema para validar la columna {}".format(col))
-            print(e)
+        # Filtrar columnas relevantes según la guía de validación
+        columnas = [i for i in data.columns if i in guia_validacion.keys()]
+        data = data[columnas]
         
-    # Se identifican las variables obligatorias
-    obligatorias = [i for i in guia_validacion.keys() if guia_validacion[i]['opcional']== False]
-    obligatorias = [i for i in obligatorias if i in store_file.columns]
+        # Identificar columnas numéricas y convertirlas a tipo entero si es posible
+        try:
+            numeric = [n for n in [m for m in [i for i in guia_validacion.keys() if guia_validacion[i]['valores'] is not None] if guia_validacion[m]['valores']['Tipo'] == 'int'] if n in columnas]
+        except Exception as e:
+            print('Problemas con la malla de validación entregada')
+            print(e)
+        data = restore_type(data, numeric)
+        
+        # Crear una copia del DataFrame original
+        store_file = data.copy()
+        
+        # Realizar validación para cada columna según la malla de validación
+        for col in columnas:
+            try:
+                # Se crean las condiciones y valores
+                condicion = crear_condicion(guia_validacion[col]['condicion'], data, guia_validacion[col]['iand'], guia_validacion[col]['excluida_PTA'])
+                values = verificar_valores(guia_validacion[col]['valores'], data, col)
+                
+                # Se verifica la consistencia de la variable según los valores y condiciones
+                store_file[col] = validar_valor(condicion = condicion, values = values, col = col, data = data, file = store_file)
+            except Exception as e:
+                print("Problema para validar la columna {}".format(col))
+                print(e)
+            
+        # Se identifican las variables obligatorias
+        obligatorias = [i for i in guia_validacion.keys() if guia_validacion[i]['opcional']== False]
+        obligatorias = [i for i in obligatorias if i in store_file.columns]
+        
+        # Se añade la validación de número de documento duplicado
+        store_file['Documento_Duplicado'] = data['num_documento'].duplicated().astype(int)
+        
+        # Se agregan variables que permiten identificar los registros que están correctos o erroneos
+        id_hogar = data['id']
+        num_doc_representante = data['NUMERODOCUMENTOTITULAR']
+        num_doc_integrante = data['num_documento']
+        store_file.insert(0, 'ID_HOGAR', id_hogar)
+        store_file.insert(1,'NUM_TITULAR', num_doc_representante)
+        store_file.insert(2,'NUM_DOC_INTEGRANTE', num_doc_integrante)
+        
+        obligatorias.append('Documento_Duplicado')
+        
+        # Se realiza la suma de los errores para cada registro del dataframe
+        store_file['Validacion'] = store_file[obligatorias].sum(axis = 1)
+        
+        # Se crea la columna donde se almacenan las columnas que contienen errores
+        store_file['Errores'] = store_file.apply(concatenate_Errores, args=(obligatorias,), axis=1)
+        
+        # Se crean los dataframes donde se almacenan los registros validos y los registros con errores
+        resultados = store_file.groupby(by=['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE'], as_index=False).agg({'Validacion':'sum'})
+        data_con_errores = resultados[resultados['Validacion'] > 0].drop(columns = ['Validacion'])
+        data_sin_errores = resultados[resultados['Validacion'] == 0].drop(columns = ['Validacion'])
+        
+        novalid = data_con_errores.merge(store_file, on=['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE'], how='left')[['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE','Validacion','Errores']]
+        valid = data_sin_errores.merge(store_file, on=['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE'], how='left')[['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE','Validacion','Errores']]
+        
+        # Imprimir resultados
+        print("RESULTADOS MALLA DE VALIDACIÓN")
+        print("El número total de elementos validados fueron {} participantes que equivale a {} Hogares".format(len(store_file), store_file['ID_HOGAR'].nunique()))
+        print("="*70)
+        print("El número total de participantes con valores correctos es {} que equivale a {} hogares".format(len(valid),valid['ID_HOGAR'].nunique()))
+        print("="*70)
+        print("El número total de participantes con valores erroneos es {} que equivale a {} hogares".format(len(novalid),novalid['ID_HOGAR'].nunique()))
+        
+        return store_file, valid, novalid
     
-    # Se añade la validación de número de documento duplicado
-    store_file['Documento_Duplicado'] = data['num_documento'].duplicated().astype(int)
-    
-    # Se agregan variables que permiten identificar los registros que están correctos o erroneos
-    id_hogar = data['id']
-    num_doc_representante = data['NUMERODOCUMENTOTITULAR']
-    num_doc_integrante = data['num_documento']
-    store_file.insert(0, 'ID_HOGAR', id_hogar)
-    store_file.insert(1,'NUM_TITULAR', num_doc_representante)
-    store_file.insert(2,'NUM_DOC_INTEGRANTE', num_doc_integrante)
-    
-    obligatorias.append('Documento_Duplicado')
-    
-    # Se realiza la suma de los errores para cada registro del dataframe
-    store_file['Validacion'] = store_file[obligatorias].sum(axis = 1)
-    
-    # Se crea la columna donde se almacenan las columnas que contienen errores
-    store_file['Errores'] = store_file.apply(concatenate_Errores, args=(obligatorias,), axis=1)
-    
-    # Se crean los dataframes donde se almacenan los registros validos y los registros con errores
-    resultados = store_file.groupby(by=['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE'], as_index=False).agg({'Validacion':'sum'})
-    data_con_errores = resultados[resultados['Validacion'] > 0].drop(columns = ['Validacion'])
-    data_sin_errores = resultados[resultados['Validacion'] == 0].drop(columns = ['Validacion'])
-    
-    novalid = data_con_errores.merge(store_file, on=['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE'], how='left')[['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE','Validacion','Errores']]
-    valid = data_sin_errores.merge(store_file, on=['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE'], how='left')[['ID_HOGAR','NUM_TITULAR','NUM_DOC_INTEGRANTE','Validacion','Errores']]
-    
-    # Imprimir resultados
-    print("RESULTADOS MALLA DE VALIDACIÓN")
-    print("El número total de elementos validados fueron {} participantes que equivale a {} Hogares".format(len(store_file), store_file['ID_HOGAR'].nunique()))
-    print("="*70)
-    print("El número total de participantes con valores correctos es {} que equivale a {} hogares".format(len(valid),valid['ID_HOGAR'].nunique()))
-    print("="*70)
-    print("El número total de participantes con valores erroneos es {} que equivale a {} hogares".format(len(novalid),novalid['ID_HOGAR'].nunique()))
-    
-    return store_file, valid, novalid
-
+    except Exception as e:
+        # Manejo de excepciones para identificar y manejar errores específicos
+        print("Error al realizar la validación de datos basada en la malla de validación.")
+        print(e)
 
 
 # Elimina listas que contengan valores nulos
@@ -613,3 +629,25 @@ def create_json_malla(name_malla:str, ruta:str):
     except Exception as e:
         print('Error al intentar exportar el archivo json')
         print(e)
+        
+        
+# Función para validar el esquema del token API
+def check(conf_schema: dict, token: dict):
+    """Función que valida la estructura que va a obtener los datos del API
+
+    Args:
+        conf_schema (dict): Diccionario con el esquema que va a utilizar en la revisión
+        token (dict):
+
+    Raises:
+        SchemaError: En el caso que la validación falle, saltará un SchemaError
+
+    Returns:
+        bool: Booleano que indica si el token paso la validación
+    """
+    try:
+        conf_schema.validate(token)
+        return True
+    except SchemaError:
+        raise e
+        return False

@@ -18,7 +18,7 @@ import requests
 
 # Se importa el script MallaFunctions como un módulo para poder acceder a sus funciones
 import malla_functions as mf
-from typing import Union
+from schema import Schema, And, Use, Optional, SchemaError, Or
 
 
 # Definición de la clase validacion
@@ -26,38 +26,40 @@ class validacion:
     """Esta clase tiene como objetivo descargar y validar los datos a partir de la malla de validación entregada
     
     Atributos: 
-            - nombre_api (str) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT
+            - token (dict) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT
             - json_malla (bool) : Booleano que le indica a la clase si la malla de validación ya se encuentra en formato JSON o se debe crear a partir del archivo Excel
             - nombre_malla (str) : Nombre que identifica a la malla de validación, ya sea de tipo JSON o de tipo Excel (Ambos archivos deben tener el mismo nombre)
             - ruta (str) : Cadena de texto que ubica la ruta a la carpeta del proyecto o al repositorio
     """
-    def __init__(self, nombre_api:str, json_malla: bool, nombre_malla : str, ruta:str):
+    def __init__(self, token:dict, json_malla: bool, nombre_malla : str, ruta:str):
         """
         Inicialización de la instancia validación
         
         Args:
-            nombre_api (str) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT
+            token (dict) : Nombre del archivo json config donde se encuentra la puerta de acceso a los datos por medio del API de RIT
             json_malla (bool) : Booleano que le indica a la clase si la malla de validación ya se encuentra en formato JSON o se debe crear a partir del archivo Excel
             nombre_malla (str) : Nombre que identifica a la malla de validación, ya sea de tipo JSON o de tipo Excel (Ambos archivos deben tener el mismo nombre)
             ruta (str) : Cadena de texto que ubica la ruta a la carpeta del proyecto o al repositorio
         """
-        self.config = "{}/config/{}.json".format(ruta, nombre_api) 
+        self.config = token
         self.bool_malla = json_malla
         self.ruta = ruta
         self.nombre_malla = nombre_malla
         self.malla = dict()
-        self.token = dict()
         self.dataframe = pd.DataFrame
         self.validacion = pd.DataFrame
         
     # Método que lee el archivo JSON con la configuracion
     def get_token(self):
+        """Método que revisa si la estructura del token está correcta
+        """
+        conf_schema = Schema({"url": And(Use(str)),"method": And(str, lambda s: s == "GET"),"headers": {"Authorization":And(Use(str))}})
+        
         try: 
-            with open(self.config) as file:
-                self.token = json.load(file) 
+            mf.check(conf_schema = conf_schema, token=self.config)
         except Exception as e:
             print(e)  
-    
+            
     # Método que accede al API para poder leer el dataframe
     def get_dataframe(self):
         """Método de la clase validación que accede al conjunto de datos del API a través del token de acceso
@@ -66,12 +68,15 @@ class validacion:
             None
         """
         # Accede al archivo Config
-        self.get_token() 
+        try:
+            self.get_token() 
+        except:
+            print("Problema con el Token")
         
         # Se realiza la conexión con el API
         try: 
-            response = requests.get(self.token["url"],
-                                    headers = self.token["headers"])
+            response = requests.get(self.config["url"],
+                                    headers = self.config["headers"])
         except Exception as e:
             print("Conexión Fallida")
             print(e)
