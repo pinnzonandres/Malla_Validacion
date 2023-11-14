@@ -5,14 +5,14 @@ El siguiente documento explica el procedimiento que se debe realizar con el obje
 ## Generación de la Malla de Validación de Tipo JSON
 Para poder realizar la malla de validación desde un notebook de databricks, es necesario de antemano, haber cargado en el repositorio establecido, el archivo de tipo JSON, referente a la malla de validación del formulario al cuál se le desea realizar la validación.
 
-Esta función es [create_json_malla](https://malla-de-validacion.readthedocs.io/es-mx/latest/#malla_functions.create_json_malla), y su ejecución es de la siguiente manera:
+Esto se pude realizar a través de una función definida en el proyecto, esta función es [create_json_malla](https://malla-de-validacion.readthedocs.io/es-mx/latest/#malla_functions.create_json_malla), y su ejecución es de la siguiente manera:
 
 ### 1. Obtener el archivo excel con la malla de validación
 Tener el archivo excel con el esquema definido en [Esquema Archivos](Esquema_Archivos_Malla_Validacion.md) en la carpeta `data/validation_excel` que se encuentra definida y explicada en el documento:
  
 > Es importante tener claro el nombre del archivo en Excel ya que este será utilizado más adelante en el código.
 
-### 2. General el archivo de tipo JSON desde un notebook
+### 2. Generar el archivo de tipo JSON desde un notebook
 Una vez esta guardado con la estructura correcta, desde un notebook de [Jupyter](https://aprendepython.es/pypi/datascience/jupyter/) en el entorno local se deben ejecutar los siguientes comandos
 
 ```python
@@ -89,7 +89,7 @@ Se añaden a los cambios del repositorio el archivo que generó:
 git add data/validation_data/nombre_de_la_malla.json
 ```
 
-Se realiza un `commit -m`, este comando la indica al repositorio que guarde cómo un nuevo cambio el archivo que se acabo de generar, al momento de general el commit se debe añadir el mensaje *"Cargue malla de validacion JSON nombre_de_la_malla"*, siguiendo el ejemplo del paso 2.1, el commit sería: `git commit -m "Cargue malla de validación JSON Malla_Formulario_RIT`.
+Se realiza un `commit -m`, este comando la indica al repositorio que se confirmar los cambios realizados, al momento de generar el commit se debe añadir el mensaje *"Cargue malla de validacion JSON nombre_de_la_malla"*, siguiendo el ejemplo del paso 2.1, el commit sería: `git commit -m "Cargue malla de validación JSON Malla_Formulario_RIT`.
 ```bash
 git commit -m "Cargue malla de validacion JSON nombre_de_la_malla"
 ```
